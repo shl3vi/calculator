@@ -1,24 +1,41 @@
-var express = require('express')
-var app = express()
-var path = require("path");
-var logic = require("./logic.js");
-var bodyParser = require('body-parser');
-app.use(bodyParser.urlencoded());
-app.use(express.static(__dirname + '/static'));
+var fs = require('fs');
+var builder = require('xmlbuilder');
+var xml2js = require('xml2js');
+
+var XML = require('pixl-xml');
+
+var TOMCAT_USER_XML = "tomcat-users.xml";
 /*
-this function is active when receive http request in method POST and in adress '/hi'
-*/ 
-app.get('/', function (req, res) {
-  res.sendFile(path.join(__dirname + '/index.html'));
-})
 
-app.post('/calculate', function (req, res) {
-  var theData = req.body;
-  console.log(theData);
-  if(theData.operator == "+")
-  	res.send({result: logic.add(Number(theData.first),Number(theData.second))});
-})
- 
-app.listen(3000) 	
+var xml_string = '<?xml version="1.0"?>' +
+'<tomcat-users>' + 
+'<role rolename="manager"/>' +
+'<role rolename="admin"/>' +
+'<role rolename="manager-gui"/>' + 
+'<role rolename="manager-script"/>' +
+'<user username="admin" password="admin" roles="admin,manager,manager-gui,manager-script"/>' +
+'</tomcat-users>';
 
+ var doc = XML.parse( xml_string );
+ console.log( doc );
+*/
 
+var a = 
+{ 
+    role:
+    [ 
+        { rolename: 'manager' },
+        { rolename: 'admin' },
+        { rolename: 'manager-gui' },
+        { rolename: 'manager-script' } 
+    ],
+    user:
+        {   username: 'admin',
+            password: 'admin',
+            roles: 'admin,manager,manager-gui,manager-script' 
+        }
+}
+
+var builder = new xml2js.Builder();
+var xml = builder.buildObject(a);
+fs.writeFile(__dirname + "/" + TOMCAT_USER_XML , xml, function(){});
